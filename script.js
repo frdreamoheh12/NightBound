@@ -77,6 +77,69 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  /* ---------- Music player ---------- */
+  const audio = document.getElementById('nightboundAudio');
+  const playBtn = document.getElementById('playBtn');
+  const playIcon = document.getElementById('playIcon');
+  const pauseIcon = document.getElementById('pauseIcon');
+  const backBtn = document.getElementById('backBtn');
+  const forwardBtn = document.getElementById('forwardBtn');
+  const seekBar = document.getElementById('seekBar');
+  const currentTimeEl = document.getElementById('currentTime');
+  const durationTimeEl = document.getElementById('durationTime');
+  const playerVisual = document.querySelector('.player-visual');
+
+  function formatTime(seconds){
+    if (!isFinite(seconds) || isNaN(seconds)) return '0:00';
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  }
+
+  if (audio && playBtn){
+    audio.addEventListener('loadedmetadata', () => {
+      seekBar.max = audio.duration;
+      durationTimeEl.textContent = formatTime(audio.duration);
+    });
+
+    audio.addEventListener('timeupdate', () => {
+      if (!seekBar.matches(':active')) seekBar.value = audio.currentTime;
+      currentTimeEl.textContent = formatTime(audio.currentTime);
+    });
+
+    audio.addEventListener('ended', () => {
+      playIcon.style.display = '';
+      pauseIcon.style.display = 'none';
+      playerVisual.classList.remove('playing');
+    });
+
+    playBtn.addEventListener('click', () => {
+      if (audio.paused){
+        audio.play();
+        playIcon.style.display = 'none';
+        pauseIcon.style.display = '';
+        playerVisual.classList.add('playing');
+      } else {
+        audio.pause();
+        playIcon.style.display = '';
+        pauseIcon.style.display = 'none';
+        playerVisual.classList.remove('playing');
+      }
+    });
+
+    backBtn.addEventListener('click', () => {
+      audio.currentTime = Math.max(0, audio.currentTime - 10);
+    });
+
+    forwardBtn.addEventListener('click', () => {
+      audio.currentTime = Math.min(audio.duration || audio.currentTime + 10, audio.currentTime + 10);
+    });
+
+    seekBar.addEventListener('input', () => {
+      audio.currentTime = seekBar.value;
+    });
+  }
+
   /* ---------- Falling leaves ---------- */
   const leafLayer = document.getElementById('leafLayer');
   if (leafLayer){
