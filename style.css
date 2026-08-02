@@ -51,14 +51,8 @@ nav a::after{
 }
 nav a:hover{ color:var(--bone); }
 nav a:hover::after{ width:100%; }
-.nav-cta{
-  border:1px solid var(--acid); color:var(--acid) !important;
-  padding:8px 16px; border-radius:2px;
-}
-.nav-cta:hover{ background:var(--acid); color:var(--void) !important; }
-.nav-cta::after{ display:none; }
 
-/* ---------- HERO ---------- */
+/* ---------- HERO / FOREST SCENE ---------- */
 .hero{
   position:relative;
   height:100svh;
@@ -78,6 +72,10 @@ nav a:hover::after{ width:100%; }
     radial-gradient(1px 1px at 10% 35%, rgba(239,233,216,0.4), transparent),
     radial-gradient(1px 1px at 90% 12%, rgba(239,233,216,0.5), transparent);
   opacity:0.8;
+  animation:twinkle 4s ease-in-out infinite;
+}
+@keyframes twinkle{
+  0%,100%{ opacity:0.8; } 50%{ opacity:0.5; }
 }
 
 .moon{
@@ -88,18 +86,49 @@ nav a:hover::after{ width:100%; }
 }
 
 .forest-svg{ position:absolute; bottom:0; left:0; width:100%; height:70%; }
-.forest-svg svg{ width:100%; height:100%; display:block; }
+.forest-svg svg{ width:100%; height:100%; display:block; overflow:visible; }
+
+/* parallax layers — offset via inline transform set by JS, plus a subtle
+   independent drift so the scene never sits perfectly still */
+.layer{
+  transition:transform .25s ease-out;
+  animation:layer-drift 14s ease-in-out infinite;
+}
+@keyframes layer-drift{
+  0%,100%{ margin-left:0; }
+  50%{ margin-left:2px; }
+}
 
 .tree{
   transform-box:fill-box; transform-origin:50% 100%;
-  animation:sway 6s ease-in-out infinite;
+  animation:sway 7s ease-in-out infinite;
 }
-.tree.back{ animation-duration:8s; }
-.tree:nth-child(odd){ animation-delay:-2s; }
-.tree:nth-child(3n){ animation-delay:-4s; }
+.tree.back{ animation-duration:9s; }
+.tree:nth-child(2){ animation-delay:-1.5s; animation-duration:6.4s; }
+.tree:nth-child(3){ animation-delay:-3.1s; animation-duration:7.8s; }
+.tree:nth-child(4){ animation-delay:-2.2s; animation-duration:8.4s; }
+.tree:nth-child(5){ animation-delay:-4.5s; animation-duration:6.9s; }
+.tree:nth-child(6){ animation-delay:-1.1s; animation-duration:7.3s; }
 @keyframes sway{
-  0%,100%{ transform:rotate(-0.6deg); }
-  50%{ transform:rotate(0.6deg); }
+  0%,100%{ transform:rotate(-0.8deg); }
+  50%{ transform:rotate(0.9deg); }
+}
+
+.firefly{
+  animation:firefly-drift 6s ease-in-out infinite, firefly-glow 2.4s ease-in-out infinite;
+}
+.firefly:nth-of-type(2){ animation-delay:1s, 0.6s; }
+.firefly:nth-of-type(3){ animation-delay:2.1s, 1.2s; }
+.firefly:nth-of-type(4){ animation-delay:0.6s, 1.8s; }
+.firefly:nth-of-type(5){ animation-delay:3s, 0.3s; }
+@keyframes firefly-drift{
+  0%,100%{ transform:translate(0,0); }
+  25%{ transform:translate(6px,-8px); }
+  50%{ transform:translate(-4px,-14px); }
+  75%{ transform:translate(8px,-4px); }
+}
+@keyframes firefly-glow{
+  0%,100%{ opacity:0.2; } 50%{ opacity:1; }
 }
 
 .eye{ animation:blink 5s ease-in-out infinite; transform-origin:center; }
@@ -133,11 +162,29 @@ nav a:hover::after{ width:100%; }
   100%{ transform:translate(-10px,-90px) scale(1.6); opacity:0; }
 }
 
+/* falling leaves — spawned by JS as individual divs */
+.leaves{ position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:3; }
+.leaf{
+  position:absolute; top:-20px;
+  width:7px; height:10px; border-radius:0 60% 0 60%;
+  background:linear-gradient(160deg, #6b7a3f, #2f3a1c);
+  opacity:0.75;
+  animation-name:leaf-fall;
+  animation-timing-function:linear;
+  animation-fill-mode:forwards;
+}
+@keyframes leaf-fall{
+  0%{ transform:translate(0,0) rotate(0deg); opacity:0; }
+  8%{ opacity:0.75; }
+  100%{ transform:translate(var(--drift,40px), 620px) rotate(340deg); opacity:0; }
+}
+
 .fog-layer{
   position:absolute; left:-10%; width:120%; height:180px; bottom:0;
   background:linear-gradient(to top, rgba(185,201,189,0.16), transparent);
   filter:blur(6px);
   animation:drift 22s linear infinite;
+  z-index:4;
 }
 .fog-layer.two{ bottom:40px; animation-duration:30s; animation-direction:reverse; opacity:0.7; }
 @keyframes drift{
@@ -147,12 +194,12 @@ nav a:hover::after{ width:100%; }
 }
 
 .vignette{
-  position:absolute; inset:0; pointer-events:none;
+  position:absolute; inset:0; pointer-events:none; z-index:5;
   background:radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.75) 100%);
 }
 
 .hero-content{
-  position:relative; z-index:5;
+  position:relative; z-index:6;
   width:100%; padding:0 5vw 70px;
   text-align:center;
 }
@@ -192,7 +239,7 @@ h1.title{
     0 0 18px rgba(212,243,74,0.35),
     3px 3px 0 rgba(156,31,46,0.5);
   cursor:default;
-  transition:text-shadow .15s ease, transform .15s ease;
+  transition:text-shadow .15s ease;
 }
 h1.title:hover{
   text-shadow:
@@ -205,7 +252,6 @@ h1.title:hover{
   max-width:560px; margin:22px auto 38px;
   font-size:17px; line-height:1.6; color:var(--fog);
 }
-.tagline strong{ color:var(--bone); }
 
 .cta-row{ display:flex; gap:18px; justify-content:center; flex-wrap:wrap; }
 
@@ -306,20 +352,34 @@ section{ padding:110px 5vw; position:relative; }
 .fact .label{ font-size:11px; letter-spacing:1.5px; color:var(--acid-dim); text-transform:uppercase; margin-bottom:6px; }
 .fact .value{ font-size:18px; color:var(--bone); font-weight:600; }
 
-/* ---------- CALLOUT ---------- */
-.callout{
+/* ---------- COMMUNITY SECTION ---------- */
+.community{
   background:var(--void);
-  text-align:center;
   border-top:1px solid rgba(239,233,216,0.08);
   border-bottom:1px solid rgba(239,233,216,0.08);
 }
-.callout h2{
-  font-family:'Creepster', cursive; font-weight:400;
-  font-size:clamp(34px, 6vw, 64px);
-  color:var(--bone); margin-bottom:22px;
-  text-shadow:0 0 20px rgba(156,31,46,0.35);
+.community-grid{
+  display:grid; grid-template-columns:repeat(2, 1fr); gap:28px;
 }
-.callout p{ color:var(--fog); max-width:520px; margin:0 auto 34px; line-height:1.6; }
+.community-card{
+  background:var(--pine-deep);
+  border:1px solid rgba(239,233,216,0.08);
+  border-radius:4px;
+  padding:34px;
+  transition:transform .3s ease, border-color .3s ease;
+}
+.community-card:hover{ transform:translateY(-8px); border-color:rgba(212,243,74,0.4); }
+.community-icon{
+  width:52px; height:52px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  margin-bottom:20px;
+}
+.community-icon svg{ width:26px; height:26px; }
+.discord-icon{ background:rgba(88,101,242,0.15); color:#8f9bff; }
+.youtube-icon{ background:rgba(255,0,0,0.12); color:#ff5c5c; }
+.community-card h3{ font-size:20px; margin-bottom:10px; }
+.community-card p{ color:var(--fog); font-size:14px; line-height:1.6; margin-bottom:24px; }
+.community-card .btn{ padding:12px 26px; font-size:12px; }
 
 /* ---------- FOOTER ---------- */
 footer{
@@ -355,10 +415,58 @@ footer{
   border:1px solid rgba(185,201,189,0.3); padding:4px 10px; border-radius:2px;
 }
 
+/* ---------- TRAILER MODAL ---------- */
+.modal-overlay{
+  position:fixed; inset:0; z-index:200;
+  background:rgba(2,3,2,0.82);
+  backdrop-filter:blur(4px);
+  display:flex; align-items:center; justify-content:center;
+  padding:20px;
+  opacity:0; pointer-events:none;
+  transition:opacity .25s ease;
+}
+.modal-overlay.open{ opacity:1; pointer-events:auto; }
+
+.modal-card{
+  position:relative;
+  max-width:440px; width:100%;
+  background:var(--pine-deep);
+  border:1px solid rgba(212,243,74,0.3);
+  border-radius:6px;
+  padding:38px 34px 32px;
+  box-shadow:0 30px 80px rgba(0,0,0,0.6), 0 0 40px rgba(212,243,74,0.08);
+  transform:translateY(16px) scale(0.97);
+  transition:transform .25s ease;
+}
+.modal-overlay.open .modal-card{ transform:translateY(0) scale(1); }
+
+.modal-close{
+  position:absolute; top:14px; right:16px;
+  background:none; border:none; color:var(--fog);
+  font-size:26px; line-height:1; cursor:pointer;
+  transition:color .2s ease;
+}
+.modal-close:hover{ color:var(--acid); }
+
+.modal-eyebrow{
+  font-family:'JetBrains Mono', monospace; font-size:11px;
+  letter-spacing:2px; text-transform:uppercase; color:var(--acid-dim);
+  margin-bottom:10px;
+}
+.modal-card h3{
+  font-family:'Creepster', cursive; font-weight:400;
+  font-size:32px; color:var(--bone); margin-bottom:14px;
+}
+.modal-card p{ color:var(--fog); font-size:14px; line-height:1.65; margin-bottom:26px; }
+.modal-card strong{ color:var(--acid); }
+.modal-actions{ display:flex; gap:12px; flex-wrap:wrap; }
+.modal-actions .btn{ padding:12px 22px; font-size:12px; }
+
 /* ---------- RESPONSIVE ---------- */
 @media (max-width:900px){
   nav ul{ display:none; }
   .feature-grid{ grid-template-columns:1fr; }
+  .community-grid{ grid-template-columns:1fr; }
   .facts-row{ gap:26px; }
   section{ padding:80px 6vw; }
 }
